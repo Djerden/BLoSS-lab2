@@ -22,13 +22,19 @@ public class PaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
     private final UserService userService;
-    private final Random random = new Random();
+    private final TransactionService transactionService;
+    private final TestVirtualAccountService testVirtualAccountService;
 
     public PaymentMethod addCard(AddCardRequest request) {
         User user = userService.getCurrentUser();
 
         if (paymentMethodRepository.existsByUserAndCardNumber(user, request.getCardNumber())) {
             throw new CardAlreadyExistsException("Эта карта уже привязана к вашему аккаунту");
+        }
+
+        // Создаем виртуальный тестовый счет
+        if (!testVirtualAccountService.existsAccount(request.getCardNumber())) {
+            testVirtualAccountService.createAccount(request.getCardNumber());
         }
 
         PaymentMethod card = new PaymentMethod();
@@ -97,30 +103,21 @@ public class PaymentMethodService {
         if (cardNumber == null || cardNumber.isEmpty()) {
             return "****";
         }
-
-        // Удаляем все нецифровые символы
         String cleanNumber = cardNumber.replaceAll("[^0-9]", "");
-
         if (cleanNumber.length() < 8) {
             return "****" + (cleanNumber.isEmpty() ? "" : " " + cleanNumber);
         }
-
-        // Первые 4 и последние 4 цифры
         String firstFour = cleanNumber.substring(0, 4);
         String lastFour = cleanNumber.substring(cleanNumber.length() - 4);
-
-        // Маскируем среднюю часть (ровно столько символов, сколько нужно)
         int maskedDigits = cleanNumber.length() - 8;
         String maskedMiddle = String.join("", Collections.nCopies(maskedDigits, "*"));
-
-        // Форматируем с пробелами (каждые 4 символа)
         String formatted = firstFour + " " + maskedMiddle + " " + lastFour;
 
-        // Удаляем возможные лишние пробелы
         return formatted.replaceAll(" {2,}", " ").trim();
     }
 
     public boolean processPayment(User user, BigDecimal amount) {
+        // Бесплатное приложение
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             return true;
         }
@@ -128,12 +125,7 @@ public class PaymentMethodService {
         PaymentMethod primaryCard = paymentMethodRepository.findByUserAndIsPrimary(user, true)
                 .orElseThrow(() -> new PrimaryCardNotFoundException("Основная карта не найдена"));
 
-        // Имитация оплаты - 50% успешных платежей
-        boolean paymentSuccess = random.nextDouble() < 0.5;
-
-        if (!paymentSuccess) {
-            throw new PaymentProcessingException("Недостаточно средств на карте");
-        }
+        testVirtualAccountService.withdraw(primaryCard.getCardNumber(), amount);
 
         return true;
     }

@@ -39,6 +39,16 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, "Validation Failed");
     }
 
+    @ExceptionHandler(NegativeValueException.class)
+    public ResponseEntity<ErrorResponse> handleNegativeValueException(NegativeValueException ex) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, "Negative Withdraw Value");
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, "Insufficient Balance");
+    }
+
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
         return buildErrorResponse(ex, HttpStatus.UNAUTHORIZED, "JWT Token Expired");
