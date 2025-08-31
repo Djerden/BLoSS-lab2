@@ -41,6 +41,23 @@ public class AppController {
     private final AppService appService;
     private final PurchaseService purchaseService;
 
+    @PreAuthorize("hasAuthority('VIEW_PURCHASED_APP_LIST')")
+    @GetMapping("/purchased")
+    public ResponseEntity<Page<AppListDto>> getPurchasedApps(
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        // Получаем текущего пользователя
+        User currentUser = userService.getCurrentUser();
+
+        // Получаем страницу покупок пользователя
+        Page<Purchase> purchasesPage = purchaseService.getPurchasesByUser(currentUser, pageable);
+
+        // Преобразуем каждую покупку в DTO приложения
+        Page<AppListDto> appsPage = appService.getPurchasedApps(currentUser, pageable);
+
+        return ResponseEntity.ok(appsPage);
+    }
+
     @Operation(
             summary = "Загрузка нового приложения",
             description = "Позволяет разработчику загрузить новое приложение с метаданными, иконкой, скриншотами и APK/файлом",

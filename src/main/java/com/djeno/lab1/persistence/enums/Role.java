@@ -16,7 +16,8 @@ public enum Role {
             Privilege.VIEW_PAYMENT_METHOD,
             Privilege.DELETE_PAYMENT_METHOD,
             Privilege.CREATE_REVIEW,
-            Privilege.DELETE_REVIEW
+            Privilege.DELETE_REVIEW,
+            Privilege.VIEW_PURCHASED_APP_LIST
     )),
     @XmlEnumValue("ROLE_DEVELOPER")
     ROLE_DEVELOPER(Set.of(

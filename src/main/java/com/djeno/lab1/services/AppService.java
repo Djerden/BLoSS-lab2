@@ -6,10 +6,7 @@ import com.djeno.lab1.persistence.DTO.app.AppListDto;
 import com.djeno.lab1.persistence.DTO.app.CreateAppRequest;
 import com.djeno.lab1.persistence.DTO.review.ReviewDTO;
 import com.djeno.lab1.persistence.enums.Role;
-import com.djeno.lab1.persistence.models.App;
-import com.djeno.lab1.persistence.models.Category;
-import com.djeno.lab1.persistence.models.Review;
-import com.djeno.lab1.persistence.models.User;
+import com.djeno.lab1.persistence.models.*;
 import com.djeno.lab1.persistence.repositories.AppRepository;
 import com.djeno.lab1.persistence.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -102,6 +99,15 @@ public class AppService {
         app.setCategories(categories);
 
         appRepository.save(app);
+    }
+    public Page<AppListDto> getPurchasedApps(User user, Pageable pageable) {
+        // Получаем страницу покупок пользователя
+        Page<Purchase> purchasesPage = purchaseService.getPurchasesByUser(user, pageable);
+
+        // Преобразуем каждую покупку в DTO приложения
+        Page<AppListDto> appsPage = purchasesPage.map(purchase -> convertToAppListDto(purchase.getApp()));
+
+        return appsPage;
     }
 
     public Page<AppListDto> getApps(Long categoryId, Pageable pageable) {
