@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +43,7 @@ public class ReviewController {
                     description = "Приложение не найдено"
             )
     })
+    @PreAuthorize("hasAuthority('CREATE_REVIEW')")
     @PostMapping
     public ResponseEntity<String> createReview(
             @Parameter(description = "Данные для создания отзыва", required = true)

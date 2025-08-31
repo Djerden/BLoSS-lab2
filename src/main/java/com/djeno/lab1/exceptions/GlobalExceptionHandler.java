@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +28,11 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
 
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, "Validation Failed");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return buildErrorResponse(ex, HttpStatus.CONFLICT, "Access Denied");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -104,8 +110,8 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex, HttpStatus.PAYMENT_REQUIRED, "Payment Required");
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+    @ExceptionHandler(NotEnoughPrivileges.class)
+    public ResponseEntity<ErrorResponse> handleNotEnoughPrivileges(NotEnoughPrivileges ex) {
         return buildErrorResponse(ex, HttpStatus.FORBIDDEN, "Access Denied");
     }
 

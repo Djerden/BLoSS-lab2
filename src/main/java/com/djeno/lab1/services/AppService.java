@@ -128,7 +128,7 @@ public class AppService {
 
         if (!app.getOwner().getId().equals(currentUser.getId()) &&
                 !currentUser.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new AccessDeniedException("Недостаточно прав для удаления приложения");
+            throw new NotEnoughPrivileges("Недостаточно прав для удаления приложения");
         }
 
         if (app.getIconId() != null) {

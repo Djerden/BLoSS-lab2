@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,7 @@ public class PaymentMethodController {
             @ApiResponse(responseCode = "400", description = "Неверные данные карты"),
             @ApiResponse(responseCode = "403", description = "Требуется авторизация")
     })
+    @PreAuthorize("hasAuthority('ADD_PAYMENT_METHOD')")
     @PostMapping()
     public ResponseEntity<String> addCard(
             @Parameter(description = "Данные карты", required = true)
@@ -71,6 +73,7 @@ public class PaymentMethodController {
             @ApiResponse(responseCode = "404", description = "Карта не найдена"),
             @ApiResponse(responseCode = "403", description = "Требуется авторизация")
     })
+    @PreAuthorize("hasAuthority('SET_PRIMARY_PAYMENT_METHOD')")
     @PatchMapping("/{id}/primary")
     public ResponseEntity<String> setPrimaryCard(@PathVariable Long id) {
         paymentMethodService.setPrimaryCard(id);
@@ -86,6 +89,7 @@ public class PaymentMethodController {
             @ApiResponse(responseCode = "200", description = "Список карт получен"),
             @ApiResponse(responseCode = "403", description = "Требуется авторизация")
     })
+    @PreAuthorize("hasAuthority('VIEW_PAYMENT_METHOD')")
     @GetMapping()
     public ResponseEntity<List<PaymentCardDTO>> getUserCards() {
         List<PaymentCardDTO> cards = paymentMethodService.getUserCards();
@@ -105,6 +109,7 @@ public class PaymentMethodController {
             @ApiResponse(responseCode = "404", description = "Карта не найдена"),
             @ApiResponse(responseCode = "403", description = "Требуется авторизация")
     })
+    @PreAuthorize("hasAuthority('DELETE_PAYMENT_METHOD')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCard(@PathVariable Long id) {
         paymentMethodService.deleteCard(id);

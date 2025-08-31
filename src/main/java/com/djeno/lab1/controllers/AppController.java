@@ -51,8 +51,8 @@ public class AppController {
             @ApiResponse(responseCode = "400", description = "Невалидные данные"),
             @ApiResponse(responseCode = "403", description = "Доступ запрещен")
     })
+    @PreAuthorize("hasAuthority('PUBLISH_APP')")
     @PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('DEVELOPER')")
     public ResponseEntity<String> publishApp(
             @Parameter(description = "Метаданные приложения в формате JSON", required = true)
             @RequestPart("appData") CreateAppRequest appData,
@@ -146,8 +146,8 @@ public class AppController {
             @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
             @ApiResponse(responseCode = "404", description = "Приложение не найдено")
     })
+    @PreAuthorize("hasAuthority('DELETE_APP')")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN')")
     public ResponseEntity<String> deleteApp(@PathVariable Long id) {
         appService.deleteApp(id);
         return ResponseEntity.ok("Приложение успешно удалено");
@@ -166,6 +166,7 @@ public class AppController {
             @ApiResponse(responseCode = "404", description = "Файл не найден"),
             @ApiResponse(responseCode = "402", description = "Приложение не оплачено")
     })
+    @PreAuthorize("hasAuthority('DOWNLOAD_APP')")
     @GetMapping("/{id}/download")
     public ResponseEntity<?> downloadApp(@PathVariable Long id) {
         return appService.downloadApp(id);
@@ -185,6 +186,7 @@ public class AppController {
             @ApiResponse(responseCode = "404", description = "Приложение не найдено"),
             @ApiResponse(responseCode = "402", description = "Недостаточно средств")
     })
+    @PreAuthorize("hasAuthority('PURCHASE_APP')")
     @PostMapping("/{id}/purchase")
     public ResponseEntity<String> purchaseApp(@PathVariable Long id) {
         App app = appService.getAppById(id);

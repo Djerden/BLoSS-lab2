@@ -1,5 +1,6 @@
 package com.djeno.lab1.persistence.models;
 
+import com.djeno.lab1.persistence.enums.Privilege;
 import com.djeno.lab1.persistence.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Builder
@@ -42,7 +45,15 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        // Привилегии пользователя
+        Set<Privilege> privileges = role.getPrivileges();
+        // Конвертируем их в SimpleGrantedAuthority
+        Set<SimpleGrantedAuthority> authorities = privileges.stream()
+                .map(p -> new SimpleGrantedAuthority(p.name()))
+                .collect(Collectors.toSet());
+        // Добавляем саму роль, если нужно
+        authorities.add(new SimpleGrantedAuthority(role.name()));
+        return authorities;
     }
 
     @Override

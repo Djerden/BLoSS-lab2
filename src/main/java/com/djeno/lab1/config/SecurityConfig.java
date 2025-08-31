@@ -1,5 +1,6 @@
 package com.djeno.lab1.config;
 
+import com.djeno.lab1.exceptions.CustomAccessDeniedHandler;
 import com.djeno.lab1.security.JwtAuthenticationFilter;
 import com.djeno.lab1.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -51,23 +53,16 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
 
-                        // test/accounts
+                        // test/accounts - эндпоинты с доступом для всех
                         .requestMatchers("/test/accounts/**").permitAll()
 
-                        // apps
+                        // apps - эндпоинты с доступом для всех
                         .requestMatchers(HttpMethod.GET, "/apps").permitAll()
                         .requestMatchers(HttpMethod.GET, "/apps/{id}").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/apps").hasRole("DEVELOPER")
-                        .requestMatchers(HttpMethod.DELETE, "/apps/{id}").hasAnyRole("DEVELOPER", "ADMIN")
-                        .requestMatchers("/apps/**").authenticated()
-
-                        // cards
-                        .requestMatchers("/cards/**").authenticated()
-
-                        // reviews
-                        .requestMatchers("/reviews").authenticated()
 
                         .anyRequest().authenticated())
+
+                .exceptionHandling(ex -> ex.accessDeniedHandler(customAccessDeniedHandler))
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
