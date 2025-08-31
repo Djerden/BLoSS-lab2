@@ -41,6 +41,21 @@ public class AppController {
     private final AppService appService;
     private final PurchaseService purchaseService;
 
+    @Operation(
+            summary = "Получение списка оплаченных приложений пользователя",
+            description = "Возвращает пагинированный список приложений, которые пользователь приобрел",
+            parameters = {
+                    @Parameter(name = "page", description = "Номер страницы", example = "0"),
+                    @Parameter(name = "size", description = "Размер страницы", example = "10"),
+                    @Parameter(name = "sort", description = "Поле сортировки (name,price,downloads)", example = "name,asc")
+            }
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Список оплаченных приложений получен",
+                    content = @Content(schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "400", description = "Неверные параметры запроса"),
+            @ApiResponse(responseCode = "403", description = "Нет прав для просмотра списка оплаченных приложений")
+    })
     @PreAuthorize("hasAuthority('VIEW_PURCHASED_APP_LIST')")
     @GetMapping("/purchased")
     public ResponseEntity<Page<AppListDto>> getPurchasedApps(
