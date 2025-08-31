@@ -4,11 +4,15 @@ import com.djeno.lab1.exceptions.*;
 import com.djeno.lab1.persistence.DTO.payment.AddCardRequest;
 import com.djeno.lab1.persistence.DTO.payment.PaymentCardDTO;
 import com.djeno.lab1.persistence.models.PaymentMethod;
+import com.djeno.lab1.persistence.models.TestVirtualAccount;
 import com.djeno.lab1.persistence.models.User;
 import com.djeno.lab1.persistence.repositories.PaymentMethodRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PaymentMethodService {
@@ -125,8 +130,24 @@ public class PaymentMethodService {
         PaymentMethod primaryCard = paymentMethodRepository.findByUserAndIsPrimary(user, true)
                 .orElseThrow(() -> new PrimaryCardNotFoundException("Основная карта не найдена"));
 
-        testVirtualAccountService.withdraw(primaryCard.getCardNumber(), amount);
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setName("processPaymentTx");
+        def.setTimeout(30);
+        // PROPAGATION_REQUIRED_NEW - новая независимая транзакция
+        // PROPAGATION_REQUIRED - если есть активная транзакция, метод войдет в нее и станет ее частью
+        // PROPAGATION_NESTED - вложенная в родительскую, rollback ограничивается savepoint (но commit всё равно будет только вместе с родительской)
 
-        return true;
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        return transactionService.execute(def, status -> {
+            TestVirtualAccount account = testVirtualAccountService.findByCardNumberForUpdate(primaryCard.getCardNumber());
+            if (account.getBalance().compareTo(amount) < 0) {
+                throw new InsufficientBalanceException("Недостаточно средств на балансе");
+            }
+            account.setBalance(account.getBalance().subtract(amount));
+            testVirtualAccountService.save(account);
+            log.info("Withdraw {} from account {}, new balance: {}", amount, account.getCardNumber(), account.getBalance());
+            return true;
+        });
     }
 }

@@ -26,6 +26,9 @@ public class TransactionConfig {
         jtaTransactionManager.setTransactionManager(userTransactionManager);
         jtaTransactionManager.setUserTransaction(userTransactionManager);
         jtaTransactionManager.setTransactionSynchronization(JtaTransactionManager.SYNCHRONIZATION_ALWAYS);
+
+        jtaTransactionManager.setAllowCustomIsolationLevels(true);
+
         return jtaTransactionManager;
     }
 }

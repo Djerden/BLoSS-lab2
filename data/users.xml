@@ -8,12 +8,6 @@
     </user>
     <user>
         <id>2</id>
-        <username>admin</username>
-        <email>admin@mail.ru</email>
-        <role>ROLE_ADMIN</role>
-    </user>
-    <user>
-        <id>3</id>
         <username>djeno</username>
         <email>djeno00@mail.ru</email>
         <role>ROLE_DEVELOPER</role>

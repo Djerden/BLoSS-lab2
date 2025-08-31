@@ -226,5 +226,4 @@ public class AppController {
         Purchase purchase = purchaseService.purchaseApp(app, user);
         return ResponseEntity.ok("Приложение было успешно оплачено");
     }
-
 }
