@@ -1,8 +1,13 @@
 package com.djeno.lab1.persistence.enums;
 
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+
 import java.util.Set;
 
+@XmlEnum
 public enum Role {
+    @XmlEnumValue("ROLE_USER")
     ROLE_USER(Set.of(
             Privilege.DOWNLOAD_APP,
             Privilege.PURCHASE_APP,
@@ -13,11 +18,13 @@ public enum Role {
             Privilege.CREATE_REVIEW,
             Privilege.DELETE_REVIEW
     )),
+    @XmlEnumValue("ROLE_DEVELOPER")
     ROLE_DEVELOPER(Set.of(
             Privilege.PUBLISH_APP,
             Privilege.DELETE_APP,
             Privilege.DOWNLOAD_APP
     )),
+    @XmlEnumValue("ROLE_ADMIN")
     ROLE_ADMIN(Set.of(
             Privilege.DELETE_APP,
             Privilege.DOWNLOAD_APP,

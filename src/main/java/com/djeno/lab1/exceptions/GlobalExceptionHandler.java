@@ -6,6 +6,8 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +30,16 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
 
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, "Validation Failed");
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        return buildErrorResponse(ex, HttpStatus.NOT_FOUND, "User Not Found");
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        return buildErrorResponse(ex, HttpStatus.UNAUTHORIZED, "Invalid Username or Password");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
