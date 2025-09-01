@@ -32,8 +32,9 @@ Google Play — приложения и игры — https://play.google.com.
 ### Выполнение:
 
 **Бизнес процессы:** 
-![img.png](diagram_1.png)
-![img.png](diagram_2.png)
+![img.png](diagram1.png)
+![img.png](diagram2.png)
+![img.png](diagram3.png)
 
 **Диаграмма классов проекта:**
 ![img.png](diagram_of_classes.png)

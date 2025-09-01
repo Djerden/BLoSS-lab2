@@ -14,6 +14,8 @@ services:
       - minio
     networks:
       - app-network
+    volumes:
+      - ./data:/app/data
 
   db:
     image: postgres:latest
